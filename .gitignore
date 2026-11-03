@@ -218,3 +218,16 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Données téléchargées en local
+data/
+
+# Clés et secrets : jamais dans le dépôt
+secrets/
+*-key.json
+.env
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
