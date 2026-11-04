@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: mart_prix_jour_departement
+    description: "Prix par jour, département et carburant, sur les prix non périmés (seuil : variable jours_max_depuis_maj) et non suspects"
+    columns:
+      - name: jour
+        data_tests:
+          - not_null
+      - name: code_departement
+        data_tests:
+          - not_null
+      - name: carburant
+        data_tests:
+          - not_null
+      - name: nb_stations
+        description: "Nombre de stations prises en compte dans le calcul."
+
+  - name: mart_stations_13
+    description: "Stations des Bouches-du-Rhône au dernier jour, classées par prix pour chaque carburant."
+    columns:
+      - name: id_station
+        data_tests:
+          - not_null
+      - name: rang
+        description: "1 = la station la moins chère pour ce carburant (ex aequo possibles)."
+        data_tests:
+          - not_null

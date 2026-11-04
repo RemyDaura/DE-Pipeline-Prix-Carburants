@@ -19,7 +19,15 @@ models:
     # Nettoyage de la table brute : des vues, recalculées à chaque lecture
     staging:
       +materialized: view
+    # Étiquetage des prix (récents, suspects), sans rien supprimer
+    intermediate:
+      +materialized: view
     # Tables finales lues par Looker Studio, recréées en entier à chaque run
     # (pas de modèle incremental : le bac à sable interdit MERGE)
     marts:
       +materialized: table
+
+vars:
+  # Au-delà, un prix est considéré comme périmé.
+  # Choisi le 2026-11-04 : 94 % des prix dataient de 30 jours ou moins.
+  jours_max_depuis_maj: 30
