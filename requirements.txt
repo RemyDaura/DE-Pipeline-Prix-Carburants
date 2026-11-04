@@ -3,3 +3,5 @@ pandas
 pyarrow
 google-cloud-bigquery
 pytest
+dbt-core~=1.12.0
+dbt-bigquery~=1.12.0

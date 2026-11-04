@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_prix_carburants
+    description: "Un relevé par station, par carburant et par jour (heure française)."
+    columns:
+      - name: id_station
+        description: "Identifiant de la station dans la source."
+        data_tests:
+          - not_null
+      - name: jour
+        data_tests:
+          - not_null
+      - name: carburant
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Gazole', 'SP95', 'SP98', 'E10', 'E85', 'GPLc']
+      - name: prix
+        description: "Prix au litre, en euros."
+        data_tests:
+          - not_null
+      - name: prix_maj_le
+        description: "Dernière mise à jour du prix par la station."
+        data_tests:
+          - not_null

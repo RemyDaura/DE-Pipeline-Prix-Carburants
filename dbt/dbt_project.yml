@@ -1,0 +1,25 @@
+name: 'carburants'
+version: '1.0.0'
+
+profile: 'carburants'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  carburants:
+    # Nettoyage de la table brute : des vues, recalculées à chaque lecture
+    staging:
+      +materialized: view
+    # Tables finales lues par Looker Studio, recréées en entier à chaque run
+    # (pas de modèle incremental : le bac à sable interdit MERGE)
+    marts:
+      +materialized: table
