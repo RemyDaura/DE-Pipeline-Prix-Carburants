@@ -1,0 +1,40 @@
+name: Pipeline quotidien
+
+on:
+  schedule:
+    - cron: "0 5 * * *"  # 5 h UTC, soit 6 h (hiver) ou 7 h (été) à Marseille
+  workflow_dispatch:      # bouton pour le lancer à la main
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Tests Python
+        run: python -m pytest
+
+      - name: Connexion à Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Extraire les prix
+        run: python -m ingestion.extraire
+
+      - name: Charger dans BigQuery
+        run: python -m ingestion.charger
+
+      - name: Construire et tester les modèles dbt
+        working-directory: dbt
+        run: dbt build --profiles-dir ../ci --target ci
