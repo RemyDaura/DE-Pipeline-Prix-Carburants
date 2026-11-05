@@ -2,7 +2,7 @@ name: Pipeline quotidien
 
 on:
   schedule:
-    - cron: "0 5 * * *"  # 5 h UTC, soit 6 h (hiver) ou 7 h (été) à Marseille
+    - cron: "17 5 * * *"  # 5 h 17 UTC (6 h 17 en hiver, 7 h 17 en été à Marseille), hors du pic de début d'heure
   workflow_dispatch:      # bouton pour le lancer à la main
 
 jobs:
