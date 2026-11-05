@@ -1,0 +1,9 @@
+.venv/
+.git/
+data/
+secrets/
+*-key.json
+.env
+dbt/
+ci/
+tests/

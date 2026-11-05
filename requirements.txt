@@ -1,7 +1,4 @@
-requests
-pandas
-pyarrow
-google-cloud-bigquery
+-r requirements-ingestion.txt
 pytest
 dbt-core~=1.12.0
 dbt-bigquery~=1.12.0
