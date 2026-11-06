@@ -11,6 +11,10 @@ concurrency:
   group: pipeline-quotidien
   cancel-in-progress: false
 
+# Droits minimaux par défaut ; seul le job de publication reçoit ceux de GitHub Pages.
+permissions:
+  contents: read
+
 jobs:
   pipeline:
     runs-on: ubuntu-latest
@@ -28,7 +32,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Vérifier le style du code
-        run: ruff check .       
+        run: ruff check .
 
       - name: Tests Python
         run: python -m pytest
@@ -48,7 +52,45 @@ jobs:
         working-directory: dbt
         run: dbt build --profiles-dir ../ci --target ci
 
+      # Juste après dbt build, qui écrit dbt/target/run_results.json (nombre de tests réussis)
+      - name: Préparer le relevé du jour
+        run: python -m ingestion.publier
 
       - name: Vérifier la fraîcheur de la source
         working-directory: dbt
         run: dbt source freshness --profiles-dir ../ci --target ci
+
+      # La documentation dbt (lignage, descriptions, tests) est un bonus :
+      # si elle échoue, le relevé est quand même publié.
+      - name: Générer la documentation dbt
+        working-directory: dbt
+        continue-on-error: true
+        run: dbt docs generate --static --profiles-dir ../ci --target ci
+
+      - name: Assembler le site publié
+        run: |
+          if [ -f dbt/target/static_index.html ]; then
+            cp dbt/target/static_index.html site/index.html
+          fi
+          ls -la site
+
+      - name: Préparer la publication
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  # Publie site/ (releve.json et documentation dbt) sur
+  # https://remydaura.github.io/DE-Pipeline-Prix-Carburants/
+  publier:
+    needs: pipeline
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - name: Publier sur GitHub Pages
+        id: deploiement
+        uses: actions/deploy-pages@v5

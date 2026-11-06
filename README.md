@@ -6,6 +6,8 @@ Pipeline de données automatisé qui récupère chaque matin les prix des carbur
 
 **[Voir le tableau de bord](https://datastudio.google.com/reporting/77d153bb-1926-4ad1-a366-4deee23bc762)** - mis à jour chaque jour vers 6 h 30.
 
+Le pipeline publie aussi chaque matin la [documentation dbt](https://remydaura.github.io/DE-Pipeline-Prix-Carburants/) et un [relevé du jour](https://remydaura.github.io/DE-Pipeline-Prix-Carburants/releve.json), affiché sur la page d'accueil de [mon portfolio](https://remydaura.github.io).
+
 | Évolution | Départements | Marseille |
 | :---: | :---: | :---: |
 | ![Évolution](docs/evolution.png) | ![Départements](docs/departements.png) | ![Marseille](docs/marseille.png) |
@@ -33,6 +35,9 @@ flowchart LR
     E --> F[dbt : intermediate]
     F --> G[dbt : marts]
     G --> H[Data Studio]
+    G --> J[publier.py : releve.json]
+    J --> K[GitHub Pages : relevé et docs dbt]
+    K --> L[Portfolio]
     I[GitHub Actions, chaque matin] -.-> B
     I -.-> E
 ```
@@ -47,6 +52,7 @@ flowchart LR
 | Orchestration | GitHub Actions + cron-job.org | Lance tests, ingestion, chargement et dbt chaque matin à 6 h 17, déclenché par un service externe via l'API GitHub |
 | Conteneur | Docker | Image légère de l'ingestion, qui tourne à l'identique sur n'importe quelle machine |
 | Restitution | Data Studio | Tableau de bord public en 3 pages |
+| Publication | Python + GitHub Pages | Calcule le relevé du jour (moyennes France et Bouches-du-Rhône, nombre de tests passés), vérifie son contrat de données, puis le publie avec la documentation dbt |
 
 
 Le graphe des modèles dbt, généré par `dbt docs` :
@@ -61,7 +67,7 @@ Python 3.12 · pandas · pyarrow · pytest · Google BigQuery · dbt Core 1.12 �
 
 La qualité est contrôlée à chaque run, et un test bloquant arrête le pipeline avant que des données fausses n'arrivent dans le tableau de bord.
 
-**Tests Python (pytest)** : sélection des colonnes, aplatissement des champs imbriqués, arrêt immédiat si la source supprime une colonne. Le code est aussi vérifié par le linter `ruff` à chaque run.
+**Tests Python (pytest)** : sélection des colonnes, aplatissement des champs imbriqués, arrêt immédiat si la source supprime une colonne ; pour le relevé publié, comptage des tests dbt, ordre des carburants et contrat de données (prix entre 0,30 et 4,00 €, aucun carburant manquant). Le code est aussi vérifié par le linter `ruff` à chaque run.
 
 **Tests dbt** (15 tests) :
 
@@ -98,8 +104,9 @@ La qualité est contrôlée à chaque run, et un test bloquant arrête le pipeli
 ├── ingestion/
 │   ├── explorer.py                  Aperçu des champs de l'API
 │   ├── extraire.py                  Téléchargement et écriture Parquet
-│   └── charger.py                   Chargement dans BigQuery
-├── tests/test_extraire.py           Tests Python
+│   ├── charger.py                   Chargement dans BigQuery
+│   └── publier.py                   Relevé du jour publié sur GitHub Pages
+├── tests/                           Tests Python (extraction, relevé)
 ├── dbt/
 │   ├── models/staging/              Nettoyage et dédoublonnage
 │   ├── models/intermediate/         Étiquetage des prix
