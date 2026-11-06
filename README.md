@@ -55,13 +55,13 @@ Le graphe des modèles dbt, généré par `dbt docs` :
 
 ## Stack
 
-Python 3.12 · pandas · pyarrow · pytest · Google BigQuery · dbt Core 1.12 · GitHub Actions · Docker · Data Studio
+Python 3.12 · pandas · pyarrow · pytest · Google BigQuery · dbt Core 1.12 · GitHub Actions · Docker · Data Studio · ruff
 
 ## Qualité des données
 
 La qualité est contrôlée à chaque run, et un test bloquant arrête le pipeline avant que des données fausses n'arrivent dans le tableau de bord.
 
-**Tests Python (pytest)** : sélection des colonnes, aplatissement des champs imbriqués, arrêt immédiat si la source supprime une colonne.
+**Tests Python (pytest)** : sélection des colonnes, aplatissement des champs imbriqués, arrêt immédiat si la source supprime une colonne. Le code est aussi vérifié par le linter `ruff` à chaque run.
 
 **Tests dbt** (15 tests) :
 
@@ -73,7 +73,7 @@ La qualité est contrôlée à chaque run, et un test bloquant arrête le pipeli
 | Prix entre 0,30 et 4,00 €/L | Bloquant | Aucune valeur impossible (erreur de format, prix en centimes) |
 | Une ligne par jour, département et carburant | Bloquant | Pas de doublon dans le mart départemental |
 | Prix à moins de 40 % de la médiane nationale | Avertissement | Signale les saisies douteuses sans bloquer le pipeline |
-| Fraîcheur de la source | Avertissement / erreur | Prévient si rien n'a été chargé depuis 36 h, échoue après 72 h |
+| Fraîcheur de la source | Avertissement / erreur | Prévient si aucune station n'a publié de nouveau prix du gazole depuis 24 h (flux bloqué), échoue après 48 h |
 
 **Ce que les tests ont permis de trouver**, sur le premier relevé (3 novembre 2026, 30 470 prix) :
 
