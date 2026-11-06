@@ -7,7 +7,9 @@ sources:
       - name: prix_carburants
         description: "Relevés bruts de l'API, un par station et par exécution du pipeline."
         config:
-          loaded_at_field: extrait_le
+          # Fraîcheur de la source elle-même : dernière mise à jour d'un prix
+          # du gazole publiée par une station (le flux est mis à jour toutes les 10 minutes)
+          loaded_at_field: "safe_cast(gazole_maj as timestamp)"
           freshness:
-            warn_after: {count: 36, period: hour}
-            error_after: {count: 72, period: hour}
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}

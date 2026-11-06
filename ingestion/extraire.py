@@ -1,5 +1,5 @@
 """Télécharge les prix des carburants et les enregistre en Parquet."""
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -70,7 +70,7 @@ def sauvegarder(df: pd.DataFrame, dossier: Path, jour: date) -> Path:
 def main() -> None:
     if not COLONNES:
         raise SystemExit("Remplis d'abord la liste COLONNES (étape 1.1).")
-    maintenant = datetime.now(timezone.utc)
+    maintenant = datetime.now(UTC)
     lignes = telecharger()
     df = preparer(lignes, COLONNES, maintenant)
     chemin = sauvegarder(df, Path("data"), maintenant.date())
