@@ -48,6 +48,11 @@ flowchart LR
 | Conteneur | Docker | Image légère de l'ingestion, qui tourne à l'identique sur n'importe quelle machine |
 | Restitution | Data Studio | Tableau de bord public en 3 pages |
 
+
+Le graphe des modèles dbt, généré par `dbt docs` :
+
+![Lignage dbt](docs/lineage.png)
+
 ## Stack
 
 Python 3.12 · pandas · pyarrow · pytest · Google BigQuery · dbt Core 1.12 · GitHub Actions · Docker · Data Studio
