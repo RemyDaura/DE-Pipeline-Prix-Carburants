@@ -1,9 +1,15 @@
 name: Pipeline quotidien
 
 on:
-  schedule:
-    - cron: "17 5 * * *"  # 5 h 17 UTC (6 h 17 en hiver, 7 h 17 en été à Marseille), hors du pic de début d'heure
-  workflow_dispatch:      # bouton pour le lancer à la main
+  # Lancé chaque matin à 6 h 17 (heure de Paris) par cron-job.org via l'API GitHub,
+  # car le planificateur intégré de GitHub ne déclenchait pas les runs de ce dépôt.
+  # Peut aussi être lancé à la main avec le bouton "Run workflow".
+  workflow_dispatch:
+
+# Deux lancements rapprochés ne tournent jamais en même temps : le second attend.
+concurrency:
+  group: pipeline-quotidien
+  cancel-in-progress: false
 
 jobs:
   pipeline:

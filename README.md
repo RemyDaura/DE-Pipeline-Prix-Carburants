@@ -44,7 +44,7 @@ flowchart LR
 | Staging | dbt (vue) | Garde le dernier relevé du jour par station, passe à une ligne par station et par carburant, convertit les types, complète les départements manquants |
 | Intermediate | dbt (vue) | Étiquette chaque prix : récent ou périmé, normal ou suspect |
 | Marts | dbt (tables) | Prix par jour, département et carburant ; classement des stations des Bouches-du-Rhône |
-| Orchestration | GitHub Actions | Lance tests, ingestion, chargement et dbt chaque jour à 5 h 17 UTC |
+| Orchestration | GitHub Actions + cron-job.org | Lance tests, ingestion, chargement et dbt chaque matin à 6 h 17, déclenché par un service externe via l'API GitHub |
 | Conteneur | Docker | Image légère de l'ingestion, qui tourne à l'identique sur n'importe quelle machine |
 | Restitution | Data Studio | Tableau de bord public en 3 pages |
 
@@ -89,7 +89,7 @@ La qualité est contrôlée à chaque run, et un test bloquant arrête le pipeli
 - **Les règles métier sont paramétrables.** Le seuil de 30 jours est une variable dbt (`jours_max_depuis_maj` dans `dbt_project.yml`).
 - **Aucun secret dans le dépôt.** En local, l'authentification passe par gcloud, sans fichier de clé. Dans GitHub Actions, la clé d'un compte de service limité à BigQuery est stockée dans les secrets du dépôt.
 - **Couverture** : les données disponibles couvrent 96 départements métropolitains.
-
+- **Un déclencheur externe.** Le planificateur intégré de GitHub Actions ne lançait pas les runs programmés de ce dépôt (aucun run en plus d'une heure de test, avec un workflow valide). Le pipeline est donc déclenché chaque matin par cron-job.org, via l'API GitHub, avec un jeton limité au lancement des workflows de ce seul dépôt.
 ## Structure du dépôt
 
 ```text
